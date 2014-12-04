@@ -1,0 +1,31 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".MainActivity" >
+
+    <item android:id="@+id/action_BLE_switch"
+        android:icon="@drawable/ic_action_device_bluetooth"
+        android:title="@string/action_toggle_bluetooth"
+        android:showAsAction="ifRoom" />
+
+
+    <item android:id="@+id/action_trust_devices"
+        android:title="@string/action_trust_devices"
+        android:orderInCategory="100"
+        android:showAsAction="never" />
+
+    <item android:id="@+id/action_search_devices"
+        android:title="@string/action_search_devices"
+        android:orderInCategory="100"
+        android:showAsAction="never" />
+
+    <item android:id="@+id/action_statistics"
+        android:title="@string/statistics"
+        android:orderInCategory="100"
+        android:showAsAction="never"></item>
+
+    <item android:id="@+id/action_settings"
+        android:title="@string/action_settings"
+        android:orderInCategory="100"
+        android:showAsAction="never" />
+
+</menu>
