@@ -1,6 +1,6 @@
-package com.trackfox.android.com.trackfox.android.utils;
+package com.trackfox.android.utils;
 
-import android.app.Activity;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -14,27 +14,24 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Created by Sam on 3.12.2014..
+ * Created by Sam on 13.1.2015..
  */
-public class DevicePreferences {
-
-    private final String TAG = "DevicePreferences";
+public class Cache {
 
     Set<DeviceModel> dbList;
     private SharedPreferences prefs;
     private SharedPreferences.Editor dbm;
-    private String KEY = "paired_devices";
-
+    private String KEY, TAG;
     private GsonBuilder gsonb;
     private Gson gson;
 
-    public DevicePreferences(Activity activity) {
-
-        this.prefs = PreferenceManager.getDefaultSharedPreferences(activity);
+    public Cache(Context context, String KEY, String TAG) {
+        this.prefs = PreferenceManager.getDefaultSharedPreferences(context);
         this.dbm = prefs.edit();
         gsonb = new GsonBuilder();
         gson = gsonb.create();
 
+        this.KEY = KEY;
         dbList = this.getList();
     }
 
@@ -85,6 +82,4 @@ public class DevicePreferences {
         }
         return false;
     }
-
-
 }

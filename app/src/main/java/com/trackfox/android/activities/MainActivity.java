@@ -1,20 +1,17 @@
 package com.trackfox.android.activities;
 
 import android.app.ActionBar;
+import android.app.ActivityManager;
 import android.app.FragmentTransaction;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
@@ -22,8 +19,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.trackfox.android.activities.adapters.TabsPagerAdapter;
+import com.trackfox.android.services.BluetoothService;
+import com.trackfox.android.services.WebService;
 
-import java.lang.reflect.Method;
 import java.util.Set;
 
 
@@ -123,6 +121,7 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
                    Toast.LENGTH_LONG).show();
         } else {
 
+            this.startServices();
 
         }
     }
@@ -131,99 +130,14 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
-        if(requestCode == REQUEST_ENABLE_BT){
-            if(myBluetoothAdapter.isEnabled()) {
-                //text.setText("Status: Enabled");
-            } else {
-                //text.setText("Status: Disabled");
-            }
-        }
-    }
 
-
-
-
-    public void list(View view){
-        // get paired devices
-        pairedDevices = myBluetoothAdapter.getBondedDevices();
-
-        // put it's one to the adapter
-        for(BluetoothDevice device : pairedDevices)
-            BTArrayAdapter.add(device.getName()+ "\n" + device.getAddress());
-
-        Toast.makeText(getApplicationContext(),"Show Paired Devices",
-                Toast.LENGTH_SHORT).show();
-
-    }
-
-    final BroadcastReceiver bReceiver = new BroadcastReceiver() {
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            // When discovery finds a device
-            if (BluetoothDevice.ACTION_FOUND.equals(action)) {
-                // Get the BluetoothDevice object from the Intent
-                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                unpairDevice(device);
-                // add the name and the MAC address of the object to the arrayAdapter
-                BTArrayAdapter.add(device.getName() + "\n" + device.getAddress());
-                BTArrayAdapter.notifyDataSetChanged();
-            }
-        }
-    };
-
-    public void find(View view) {
-
-        if (myBluetoothAdapter.isDiscovering()) {
-            Toast.makeText(getApplicationContext(),"Canceling search, please wait... " ,
-                    Toast.LENGTH_LONG).show();
-            // the button is pressed when it discovers, so cancel the discovery
-            myBluetoothAdapter.cancelDiscovery();
-        }
-        else {
-            BTArrayAdapter.clear();
-            Toast.makeText(getApplicationContext(),"Searching, please wait..." ,
-                    Toast.LENGTH_LONG).show();
-
-            myBluetoothAdapter.startDiscovery();
-            registerReceiver(bReceiver, new IntentFilter(BluetoothDevice.ACTION_FOUND));
-        }
-    }
-
-
-
-
-    private void pairDevice(BluetoothDevice device) {
-        try {
-            waitingForBonding = true;
-
-            Method m = device.getClass()
-                    .getMethod("createBond", (Class[]) null);
-            m.invoke(device, (Object[]) null);
-
-            Log.d(TAG, "REFLECTION FOR createBond invoked.");
-            // TODO: disable pairing button
-        } catch (Exception e) {
-            Log.e(TAG, e.getMessage());
-        }
-    }
-
-    private void unpairDevice(BluetoothDevice device) {
-        try {
-            Method m = device.getClass()
-                    .getMethod("removeBond", (Class[]) null);
-            m.invoke(device, (Object[]) null);
-        } catch (Exception e) {
-            Log.e(TAG, e.getMessage());
-        }
     }
 
 
 
     @Override
     protected void onDestroy() {
-        // TODO Auto-generated method stub
         super.onDestroy();
-        unregisterReceiver(bReceiver);
     }
 
 
@@ -267,8 +181,51 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
             }
         }
 
+        if (id == R.id.action_bluetooth_service) {
+            if (!isMyServiceRunning(BluetoothService.class)) {
+                startService(new Intent(this, BluetoothService.class));
+
+                Toast.makeText(
+                        getApplicationContext(),
+                        "Bluetooth service started...",
+                        Toast.LENGTH_LONG).show();
+            }
+            else {
+                stopService(new Intent(this, BluetoothService.class));
+                stopService(new Intent(this, WebService.class));
+                Toast.makeText(
+                        getApplicationContext(),
+                        "Bluetooth service stoped...",
+                        Toast.LENGTH_LONG).show();
+            }
+        }
+
 
         return super.onOptionsItemSelected(item);
+    }
+
+
+    private void startServices() {
+        if (!isMyServiceRunning(BluetoothService.class)) {
+            startService(new Intent(this, BluetoothService.class));
+        }
+        if (!isMyServiceRunning(WebService.class)) {
+            startService(new Intent(this, WebService.class));
+        }
+        Toast.makeText(
+                getApplicationContext(),
+                "Services started...",
+                Toast.LENGTH_LONG).show();
+    }
+
+    private boolean isMyServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

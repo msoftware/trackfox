@@ -13,7 +13,7 @@ import android.widget.ListView;
 
 import com.trackfox.android.activities.R;
 import com.trackfox.android.activities.adapters.DeviceListAdapter;
-import com.trackfox.android.com.trackfox.android.utils.DevicePreferences;
+import com.trackfox.android.utils.DevicePreferences;
 import com.trackfox.android.models.DeviceModel;
 
 import java.util.Set;
@@ -63,11 +63,13 @@ public class TrustedDevicesFragment extends Fragment {
 
         pairedDevices = myBluetoothAdapter.getBondedDevices();
 
-        for (BluetoothDevice device : pairedDevices)
-            BTArrayAdapter.add(new DeviceModel(device));
+        //for (BluetoothDevice device : pairedDevices)
+         //   BTArrayAdapter.add(new DeviceModel(device));
 
         for (DeviceModel device: devicePreferences.getList()) {
             Log.d("shared_preferences", device.getTitle());
+            Log.d("shared_preferences", device.getBondState());
+            Log.d("shared_preferences", "" + device.getBondStateCode());
             BTArrayAdapter.add(device);
         }
     }

@@ -14,7 +14,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.trackfox.android.activities.R;
-import com.trackfox.android.com.trackfox.android.utils.TrackfoxLocationListener;
+import com.trackfox.android.utils.TrackfoxLocationListener;
 
 /**
  * Created by Sam on 1.12.2014..

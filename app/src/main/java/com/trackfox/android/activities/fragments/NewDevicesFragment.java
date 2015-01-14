@@ -22,7 +22,7 @@ import android.widget.Toast;
 
 import com.trackfox.android.activities.R;
 import com.trackfox.android.activities.adapters.DeviceListAdapter;
-import com.trackfox.android.com.trackfox.android.utils.DevicePreferences;
+import com.trackfox.android.utils.DevicePreferences;
 import com.trackfox.android.models.DeviceModel;
 
 /**
@@ -92,10 +92,14 @@ public class NewDevicesFragment extends Fragment {
                 deviceModel.setDevice(device);
                 BTArrayAdapter.add(deviceModel);
 
-                if (device.getBondState() == 12) {
-                    dPreferences.add(new DeviceModel(device));
-                    dPreferences.saveList();
-                }
+
+                // TODO: TO BE removed
+                //if (device.getBondState() == 12) {
+                //    DeviceModel alreadyBondedDevice = new DeviceModel(device);
+                //    dPreferences.add(alreadyBondedDevice);
+                //    Log.d("alreadyBondedDevice", alreadyBondedDevice.getBondState());
+                //   dPreferences.saveList();
+                //}
 
                 Log.d(TAG, "ACTION_FOUND");
             }
@@ -112,8 +116,11 @@ public class NewDevicesFragment extends Fragment {
                 BTArrayAdapter.updateIcon(position);
 
                 // TODO: tu me spremi u bazu
-                dPreferences.add(new DeviceModel(device));
-                dPreferences.saveList();
+                //DeviceModel connectedModel = new DeviceModel(device);
+                //Log.d("connectedDevice", connectedModel.getBondState());
+
+                //dPreferences.add(connectedModel);
+                //dPreferences.saveList();
 
                 Log.d(TAG, "ACTION_ACL_CONNECTED");
 
@@ -134,11 +141,12 @@ public class NewDevicesFragment extends Fragment {
                 // TODO: tu me izbrisi iz baze
 
                 int position = BTArrayAdapter.getDevicePosition(device);
-                if (position != -1) {
-                    DeviceModel dm =  BTArrayAdapter.getItem(position);
-                    dm.updateState("BOND:NONE");
-                    BTArrayAdapter.updateIcon(position);
-                }
+                Log.d(TAG, "ACL_DISCONNECTED position" + position);
+                //if (position != -1) {
+                   // DeviceModel dm =  BTArrayAdapter.getItem(position);
+                    //dm.updateState("BOND:NONE");
+                    //BTArrayAdapter.updateIcon(position);
+                //}
                 // TODO: indeksiranje se ovdje zna izbrejakti kod updeata
                 Log.d(TAG, "ACL_DISCONNECTED");
 
@@ -160,22 +168,7 @@ public class NewDevicesFragment extends Fragment {
 
         // TODO: unregisterReceiver
         dPreferences = new DevicePreferences(getActivity());
-        /*
-        prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        dbm = prefs.edit();
-        if (prefs.contains("paired_devices")) {
-            String value = prefs.getString("paired_devices", null);
 
-            GsonBuilder gsonb = new GsonBuilder();
-            Gson gson = gsonb.create();
-            DeviceModel[] list = gson.fromJson(value, DeviceModel[].class);
-            dbList = new HashSet<DeviceModel>(Arrays.asList(list));
-        } else {
-            dbList = new HashSet<DeviceModel>();
-            dbm.putString("paired_devices", "[]");
-            dbm.commit();
-        }
-        */
 
         swipeRefreshLayout = (SwipeRefreshLayout) getView().findViewById(R.id.srl_main);
         swipeRefreshLayout.setEnabled(false);

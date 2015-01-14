@@ -1,4 +1,4 @@
-package com.trackfox.android.com.trackfox.android.utils;
+package com.trackfox.android.utils;
 
 import android.app.Activity;
 import android.content.Context;

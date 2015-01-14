@@ -112,7 +112,7 @@ public class DeviceListAdapter extends ArrayAdapter<DeviceModel> {
         valueView.setText(itemsArrayList.get(position).getMacAddress());
 
 
-        this. updateIcon(position);
+        this.updateIcon(position);
 
 
         //bondingState.setText("" + itemsArrayList.get(position).getBondState());
