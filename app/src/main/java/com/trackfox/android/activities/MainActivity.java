@@ -184,7 +184,7 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
         if (id == R.id.action_bluetooth_service) {
             if (!isMyServiceRunning(BluetoothService.class)) {
                 startService(new Intent(this, BluetoothService.class));
-
+                startService(new Intent(this, WebService.class));
                 Toast.makeText(
                         getApplicationContext(),
                         "Bluetooth service started...",

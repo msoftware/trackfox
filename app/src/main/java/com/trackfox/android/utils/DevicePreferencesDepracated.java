@@ -1,6 +1,6 @@
 package com.trackfox.android.utils;
 
-import android.content.Context;
+import android.app.Activity;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -11,28 +11,30 @@ import com.trackfox.android.models.DeviceModel;
 
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 /**
- * Created by Sam on 13.1.2015..
+ * Created by Sam on 3.12.2014..
  */
-public class Cache {
+public class DevicePreferencesDepracated {
+
+    private final String TAG = "DevicePreferences";
 
     Set<DeviceModel> dbList;
     private SharedPreferences prefs;
     private SharedPreferences.Editor dbm;
-    private String KEY, TAG;
+    private String KEY = "paired_devices";
+
     private GsonBuilder gsonb;
     private Gson gson;
 
-    public Cache(Context context, String KEY, String TAG) {
-        this.prefs = PreferenceManager.getDefaultSharedPreferences(context);
+    public DevicePreferencesDepracated(Activity activity) {
+
+        this.prefs = PreferenceManager.getDefaultSharedPreferences(activity);
         this.dbm = prefs.edit();
         gsonb = new GsonBuilder();
         gson = gsonb.create();
-        this.TAG = TAG;
-        this.KEY = KEY;
+
         dbList = this.getList();
     }
 
@@ -53,7 +55,7 @@ public class Cache {
         return tmp;
     }
 
-    public void commitList() {
+    public void saveList() {
         Log.d(TAG, "Saving to SharedPreferences");
         String value = gson.toJson(dbList);
         dbm.putString(KEY, value);
@@ -67,19 +69,6 @@ public class Cache {
         if (!itemExists) {
             this.dbList.add(item);
         }
-    }
-
-    public boolean remove(DeviceModel item) {
-        boolean returnValue = false;
-        Iterator it = this.dbList.iterator();
-        while (it.hasNext()) {
-            DeviceModel model = (DeviceModel) it.next();
-            if (model.getMacAddress().equals(item.getMacAddress())) {
-                it.remove();
-                returnValue = true;
-            }
-        }
-        return returnValue;
     }
 
     public boolean exists(DeviceModel item) {
@@ -96,4 +85,6 @@ public class Cache {
         }
         return false;
     }
+
+
 }

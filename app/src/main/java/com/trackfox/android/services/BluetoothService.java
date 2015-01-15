@@ -45,7 +45,7 @@ public class BluetoothService extends Service {
 
                 if (device.getBondState() != 12) {
                     unpairedCache.add(deviceModel);
-                    unpairedCache.saveList();
+                    unpairedCache.commitList();
                 }
 
 
@@ -60,7 +60,7 @@ public class BluetoothService extends Service {
                 DeviceModel deviceModel = new DeviceModel(device);
                 deviceModel.setDevice(device);
                 pairedCache.add(deviceModel);
-                pairedCache.saveList();
+                pairedCache.commitList();
 
                 Log.d(TAG, "ACTION_ACL_CONNECTED");
 
@@ -95,9 +95,6 @@ public class BluetoothService extends Service {
         Log.d(TAG, "onCreated");
         unpairedCache = new UnpairedCache(this);
         pairedCache = new PairedCache(this);
-
-
-
         //myBluetoothAdapter.startDiscovery();
     }
 

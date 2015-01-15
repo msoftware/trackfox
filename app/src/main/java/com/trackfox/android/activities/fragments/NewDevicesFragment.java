@@ -22,8 +22,8 @@ import android.widget.Toast;
 
 import com.trackfox.android.activities.R;
 import com.trackfox.android.activities.adapters.DeviceListAdapter;
-import com.trackfox.android.utils.DevicePreferences;
 import com.trackfox.android.models.DeviceModel;
+import com.trackfox.android.utils.PairedCache;
 
 /**
  * Created by Sam on 1.12.2014..
@@ -38,12 +38,8 @@ public class NewDevicesFragment extends Fragment {
     private SwipeRefreshLayout swipeRefreshLayout;
     private android.bluetooth.BluetoothAdapter myBluetoothAdapter;
 
-    private DevicePreferences dPreferences;
-
-    //Set<DeviceModel> dbList;
-    //private SharedPreferences prefs;
-    //private SharedPreferences.Editor dbm;
-
+    //private DevicePreferences dPreferences;
+    private PairedCache pairedCache;
 
 
     @Override
@@ -93,15 +89,16 @@ public class NewDevicesFragment extends Fragment {
                 BTArrayAdapter.add(deviceModel);
 
 
-                // TODO: TO BE removed
-                //if (device.getBondState() == 12) {
-                //    DeviceModel alreadyBondedDevice = new DeviceModel(device);
-                //    dPreferences.add(alreadyBondedDevice);
-                //    Log.d("alreadyBondedDevice", alreadyBondedDevice.getBondState());
-                //   dPreferences.saveList();
-                //}
-
                 Log.d(TAG, "ACTION_FOUND");
+                if (device.getBondState() == 12) {
+                    DeviceModel alreadyBondedDevice = new DeviceModel(device);
+                    pairedCache.add(alreadyBondedDevice);
+                    Log.d(TAG, "ACTION_FOUND: bond state 12: " + alreadyBondedDevice.getBondState());
+                    pairedCache.commitList();
+                    Log.d(TAG, "Paired cache saved.");
+                }
+
+
             }
             else if (BluetoothDevice.ACTION_ACL_CONNECTED.equals(action)) {
                 // Device connected
@@ -115,14 +112,13 @@ public class NewDevicesFragment extends Fragment {
                 dm.updateState("BOND:BONDED");
                 BTArrayAdapter.updateIcon(position);
 
-                // TODO: tu me spremi u bazu
-                //DeviceModel connectedModel = new DeviceModel(device);
-                //Log.d("connectedDevice", connectedModel.getBondState());
-
-                //dPreferences.add(connectedModel);
-                //dPreferences.saveList();
-
                 Log.d(TAG, "ACTION_ACL_CONNECTED");
+                DeviceModel connectedModel = new DeviceModel(device);
+                Log.d(TAG, "ACTION_ACL_CONNECTED" + connectedModel.getBondState());
+                //pairedCache.add(connectedModel);
+                //pairedCache.commitList();
+
+
 
             }
             else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
@@ -138,8 +134,8 @@ public class NewDevicesFragment extends Fragment {
 
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
 
-                // TODO: tu me izbrisi iz baze
-
+                pairedCache.remove(new DeviceModel(device));
+                pairedCache.commitList();
                 int position = BTArrayAdapter.getDevicePosition(device);
                 Log.d(TAG, "ACL_DISCONNECTED position" + position);
                 //if (position != -1) {
@@ -147,7 +143,7 @@ public class NewDevicesFragment extends Fragment {
                     //dm.updateState("BOND:NONE");
                     //BTArrayAdapter.updateIcon(position);
                 //}
-                // TODO: indeksiranje se ovdje zna izbrejakti kod updeata
+                // BUG: indeksiranje se ovdje zna izbrejakti kod updeata
                 Log.d(TAG, "ACL_DISCONNECTED");
 
             }
@@ -167,7 +163,7 @@ public class NewDevicesFragment extends Fragment {
         myBluetoothAdapter.startDiscovery();
 
         // TODO: unregisterReceiver
-        dPreferences = new DevicePreferences(getActivity());
+        pairedCache = new PairedCache(getActivity().getApplicationContext());
 
 
         swipeRefreshLayout = (SwipeRefreshLayout) getView().findViewById(R.id.srl_main);

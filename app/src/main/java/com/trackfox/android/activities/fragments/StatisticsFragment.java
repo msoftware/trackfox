@@ -31,6 +31,7 @@ public class StatisticsFragment extends Fragment {
     private String longitude;
     private String latitude;
 
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle saveInstanceState) {
 

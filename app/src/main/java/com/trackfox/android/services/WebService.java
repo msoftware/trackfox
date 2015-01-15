@@ -40,10 +40,12 @@ public class WebService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "onStarted");
 
-        if (pairedCache.getList().size() == 0) {
-            // TODO: send data to server
-            Log.d(TAG, "Sending data to server");
-        }
+
+        // TODO: add alarm to periodacly check cache for paired devices
+        //if (pairedCache.getList().size() == 0) {
+        //         INFO: send data to server
+        //    Log.d(TAG, "Sending data to server");
+        //}
 
         return super.onStartCommand(intent, flags, startId);
     }
