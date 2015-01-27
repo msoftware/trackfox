@@ -19,7 +19,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.trackfox.android.activities.adapters.TabsPagerAdapter;
-import com.trackfox.android.services.BluetoothService;
+import com.trackfox.android.services.BLEDeviceService;
 import com.trackfox.android.services.WebService;
 
 import java.util.Set;
@@ -112,7 +112,7 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 
         // take an instance of BluetoothAdapter - Bluetooth radio
         myBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        this.BluetoothActivated = myBluetoothAdapter.isEnabled();
+
 
 
         if(myBluetoothAdapter == null) {
@@ -120,10 +120,12 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
             Toast.makeText(getApplicationContext(), "Your device does not support Bluetooth",
                    Toast.LENGTH_LONG).show();
         } else {
-
+            //myBluetoothAdapter.disable();
+            myBluetoothAdapter.enable();
             this.startServices();
 
         }
+        this.BluetoothActivated = myBluetoothAdapter.isEnabled();
     }
 
 
@@ -182,8 +184,8 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
         }
 
         if (id == R.id.action_bluetooth_service) {
-            if (!isMyServiceRunning(BluetoothService.class)) {
-                startService(new Intent(this, BluetoothService.class));
+            if (!isMyServiceRunning(BLEDeviceService.class)) {
+                startService(new Intent(this, BLEDeviceService.class));
                 startService(new Intent(this, WebService.class));
                 Toast.makeText(
                         getApplicationContext(),
@@ -191,7 +193,7 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
                         Toast.LENGTH_LONG).show();
             }
             else {
-                stopService(new Intent(this, BluetoothService.class));
+                stopService(new Intent(this, BLEDeviceService.class));
                 stopService(new Intent(this, WebService.class));
                 Toast.makeText(
                         getApplicationContext(),
@@ -206,8 +208,8 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 
 
     private void startServices() {
-        if (!isMyServiceRunning(BluetoothService.class)) {
-            startService(new Intent(this, BluetoothService.class));
+        if (!isMyServiceRunning(BLEDeviceService.class)) {
+            startService(new Intent(this, BLEDeviceService.class));
         }
         if (!isMyServiceRunning(WebService.class)) {
             startService(new Intent(this, WebService.class));

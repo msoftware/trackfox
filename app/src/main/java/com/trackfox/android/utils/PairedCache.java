@@ -8,7 +8,7 @@ import android.content.Context;
 public class PairedCache extends Cache {
 
     private final String TAG = PairedCache.class.getSimpleName();
-    private String KEY = "PairedCache";
+    public String KEY = "PairedCache";
 
     public PairedCache(Context context) {
         super(context, "PairedCache", PairedCache.class.getSimpleName());

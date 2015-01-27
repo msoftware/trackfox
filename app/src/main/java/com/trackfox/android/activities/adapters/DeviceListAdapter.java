@@ -11,20 +11,20 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.trackfox.android.activities.R;
-import com.trackfox.android.models.DeviceModel;
+import com.trackfox.android.models.BLEDeviceModel;
 
 import java.util.ArrayList;
 
 /**
  * Created by Sam on 2.12.2014..
  */
-public class DeviceListAdapter extends ArrayAdapter<DeviceModel> {
+public class DeviceListAdapter extends ArrayAdapter<BLEDeviceModel> {
 
 
     private final String TAG = "DeviceListAdapter";
 
     private final Context context;
-    private final ArrayList<DeviceModel> itemsArrayList;
+    private final ArrayList<BLEDeviceModel> itemsArrayList;
 
 
     // elements
@@ -36,12 +36,12 @@ public class DeviceListAdapter extends ArrayAdapter<DeviceModel> {
         super(context, R.layout.device_list_item);
 
         this.context = context;
-        this.itemsArrayList = new ArrayList<DeviceModel>();
+        this.itemsArrayList = new ArrayList<BLEDeviceModel>();
 
     }
 
-    public boolean exists(DeviceModel item) {
-        for (DeviceModel model : this.itemsArrayList) {
+    public boolean exists(BLEDeviceModel item) {
+        for (BLEDeviceModel model : this.itemsArrayList) {
 
             Log.d(TAG, "Checking: " + model.getMacAddress() + " == "
                     +  item.getMacAddress());
@@ -56,7 +56,7 @@ public class DeviceListAdapter extends ArrayAdapter<DeviceModel> {
     }
 
     @Override
-    public void add(DeviceModel item) {
+    public void add(BLEDeviceModel item) {
         boolean itemExists = this.exists(item);
 
         Log.d(TAG, "itemExists: " + itemExists);

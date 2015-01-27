@@ -8,7 +8,7 @@ import android.content.Context;
 public class UnpairedCache extends Cache {
 
     private final String TAG = UnpairedCache.class.getSimpleName();
-    private String KEY = "UnpairedCache";
+    public String KEY = "UnpairedCache";
 
 
     public UnpairedCache(Context context) {

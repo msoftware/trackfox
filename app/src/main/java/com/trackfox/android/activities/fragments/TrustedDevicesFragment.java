@@ -13,7 +13,7 @@ import android.widget.ListView;
 
 import com.trackfox.android.activities.R;
 import com.trackfox.android.activities.adapters.DeviceListAdapter;
-import com.trackfox.android.models.DeviceModel;
+import com.trackfox.android.models.BLEDeviceModel;
 import com.trackfox.android.utils.PairedCache;
 
 import java.util.Set;
@@ -70,7 +70,7 @@ public class TrustedDevicesFragment extends Fragment {
          //   BTArrayAdapter.add(new DeviceModel(device));
 
         Log.d(TAG, "pairedCache size: " + pairedCache.getList().size());
-        for (DeviceModel device: pairedCache.getList()) {
+        for (BLEDeviceModel device: pairedCache.getList()) {
             if (device.getBondStateCode() != 12) {
                 device.updateState("BOND:BONDED");
             }

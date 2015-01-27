@@ -7,7 +7,7 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.trackfox.android.models.DeviceModel;
+import com.trackfox.android.models.BLEDeviceModel;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -19,7 +19,7 @@ import java.util.Set;
  */
 public class Cache {
 
-    Set<DeviceModel> dbList;
+    Set<BLEDeviceModel> dbList;
     private SharedPreferences prefs;
     private SharedPreferences.Editor dbm;
     private String KEY, TAG;
@@ -36,16 +36,16 @@ public class Cache {
         dbList = this.getList();
     }
 
-    public Set<DeviceModel> getList() {
-        Set<DeviceModel> tmp;
+    public Set<BLEDeviceModel> getList() {
+        Set<BLEDeviceModel> tmp;
 
         if (prefs.contains(KEY)) {
             String value = prefs.getString(KEY, null);
-            DeviceModel[] devices = gson.fromJson(value, DeviceModel[].class);
-            tmp = new HashSet<DeviceModel>(Arrays.asList(devices));
+            BLEDeviceModel[] devices = gson.fromJson(value, BLEDeviceModel[].class);
+            tmp = new HashSet<BLEDeviceModel>(Arrays.asList(devices));
         } else {
 
-            tmp = new HashSet<DeviceModel>();
+            tmp = new HashSet<BLEDeviceModel>();
             dbm.putString(KEY, "[]");
             dbm.commit();
         }
@@ -60,7 +60,7 @@ public class Cache {
         dbm.commit();
     }
 
-    public void add(DeviceModel item) {
+    public void add(BLEDeviceModel item) {
         boolean itemExists = this.exists(item);
 
         Log.d(TAG, "itemExists: " + itemExists);
@@ -69,11 +69,11 @@ public class Cache {
         }
     }
 
-    public boolean remove(DeviceModel item) {
+    public boolean remove(BLEDeviceModel item) {
         boolean returnValue = false;
         Iterator it = this.dbList.iterator();
         while (it.hasNext()) {
-            DeviceModel model = (DeviceModel) it.next();
+            BLEDeviceModel model = (BLEDeviceModel) it.next();
             if (model.getMacAddress().equals(item.getMacAddress())) {
                 it.remove();
                 returnValue = true;
@@ -82,8 +82,8 @@ public class Cache {
         return returnValue;
     }
 
-    public boolean exists(DeviceModel item) {
-        for (DeviceModel model : this.dbList) {
+    public boolean exists(BLEDeviceModel item) {
+        for (BLEDeviceModel model : this.dbList) {
 
             Log.d(TAG, "Checking: " + model.getMacAddress() + " == "
                     + item.getMacAddress());

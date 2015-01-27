@@ -25,7 +25,7 @@
             </intent-filter>
         </activity>
 
-        <service android:name="com.trackfox.android.services.BluetoothService" />
+        <service android:name="com.trackfox.android.services.BLEDeviceService" />
         <service android:name="com.trackfox.android.services.WebService" />
     </application>
 

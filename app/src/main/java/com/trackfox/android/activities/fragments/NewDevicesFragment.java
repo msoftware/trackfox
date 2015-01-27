@@ -22,25 +22,25 @@ import android.widget.Toast;
 
 import com.trackfox.android.activities.R;
 import com.trackfox.android.activities.adapters.DeviceListAdapter;
-import com.trackfox.android.models.DeviceModel;
+import com.trackfox.android.models.BLEDeviceModel;
+import com.trackfox.android.utils.NearbyDevicesCache;
 import com.trackfox.android.utils.PairedCache;
 
-/**
- * Created by Sam on 1.12.2014..
- */
+import java.util.Set;
+
+
 public class NewDevicesFragment extends Fragment {
 
     private String TAG = "NewDevicesFragment";
     private ListView deviceListView;
     private DeviceListAdapter BTArrayAdapter;
+    private Set<BLEDeviceModel> nearbyList;
 
-    public boolean waitingForBonding;
     private SwipeRefreshLayout swipeRefreshLayout;
     private android.bluetooth.BluetoothAdapter myBluetoothAdapter;
 
-    //private DevicePreferences dPreferences;
     private PairedCache pairedCache;
-
+    private NearbyDevicesCache nearbyDevicesCache;
 
     @Override
     public View onCreateView(LayoutInflater inflater,
@@ -84,14 +84,14 @@ public class NewDevicesFragment extends Fragment {
                         + device.getAddress() + "\n "
                         + device.getBondState() + ": "
                         + device.getUuids());
-                DeviceModel deviceModel = new DeviceModel(device.getName(), device.getAddress(), device.getBondState());
+                BLEDeviceModel deviceModel = new BLEDeviceModel(device.getName(), device.getAddress(), device.getBondState());
                 deviceModel.setDevice(device);
                 BTArrayAdapter.add(deviceModel);
 
 
                 Log.d(TAG, "ACTION_FOUND");
                 if (device.getBondState() == 12) {
-                    DeviceModel alreadyBondedDevice = new DeviceModel(device);
+                    BLEDeviceModel alreadyBondedDevice = new BLEDeviceModel(device);
                     pairedCache.add(alreadyBondedDevice);
                     Log.d(TAG, "ACTION_FOUND: bond state 12: " + alreadyBondedDevice.getBondState());
                     pairedCache.commitList();
@@ -102,22 +102,22 @@ public class NewDevicesFragment extends Fragment {
             }
             else if (BluetoothDevice.ACTION_ACL_CONNECTED.equals(action)) {
                 // Device connected
-
+                Log.d(TAG, "ACTION_ACL_CONNECTED");
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-
+                /*
                 int position = BTArrayAdapter.getDevicePosition(device);
                 Log.d("fetched_model", " in ACL_CONNECTED at " + position);
-                DeviceModel dm = BTArrayAdapter.getItem(position);
+                BLEDeviceModel dm = BTArrayAdapter.getItem(position);
                 Log.d("fetched_model", " in ACL_CONNECTED device " + dm.getMacAddress());
                 dm.updateState("BOND:BONDED");
                 BTArrayAdapter.updateIcon(position);
 
-                Log.d(TAG, "ACTION_ACL_CONNECTED");
-                DeviceModel connectedModel = new DeviceModel(device);
+
+                BLEDeviceModel connectedModel = new BLEDeviceModel(device);
                 Log.d(TAG, "ACTION_ACL_CONNECTED" + connectedModel.getBondState());
                 //pairedCache.add(connectedModel);
                 //pairedCache.commitList();
-
+                */
 
 
             }
@@ -133,8 +133,8 @@ public class NewDevicesFragment extends Fragment {
                 // Device has disconnected
 
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-
-                pairedCache.remove(new DeviceModel(device));
+                /*
+                pairedCache.remove(new BLEDeviceModel(device));
                 pairedCache.commitList();
                 int position = BTArrayAdapter.getDevicePosition(device);
                 Log.d(TAG, "ACL_DISCONNECTED position" + position);
@@ -143,7 +143,7 @@ public class NewDevicesFragment extends Fragment {
                     //dm.updateState("BOND:NONE");
                     //BTArrayAdapter.updateIcon(position);
                 //}
-                // BUG: indeksiranje se ovdje zna izbrejakti kod updeata
+                */
                 Log.d(TAG, "ACL_DISCONNECTED");
 
             }
@@ -164,7 +164,7 @@ public class NewDevicesFragment extends Fragment {
 
         // TODO: unregisterReceiver
         pairedCache = new PairedCache(getActivity().getApplicationContext());
-
+        nearbyDevicesCache = new NearbyDevicesCache(getActivity().getApplicationContext());
 
         swipeRefreshLayout = (SwipeRefreshLayout) getView().findViewById(R.id.srl_main);
         swipeRefreshLayout.setEnabled(false);
@@ -176,7 +176,11 @@ public class NewDevicesFragment extends Fragment {
             public void onRefresh() {
                 swipeRefreshLayout.setRefreshing(true);
 
-                myBluetoothAdapter.startDiscovery();
+                //myBluetoothAdapter.startDiscovery();
+                nearbyList = nearbyDevicesCache.getList();
+                BTArrayAdapter.clear();
+                BTArrayAdapter.notifyDataSetChanged();
+
                 Toast.makeText(getActivity().getApplicationContext(), "Device discovery started, please wait... ",
                         Toast.LENGTH_LONG).show();
 
@@ -184,7 +188,12 @@ public class NewDevicesFragment extends Fragment {
                     @Override
                     public void run() {
                         swipeRefreshLayout.setRefreshing(false);
-                        myBluetoothAdapter.cancelDiscovery();
+
+                        for (BLEDeviceModel item : nearbyList) {
+                           BTArrayAdapter.add(item);
+                        }
+                        BTArrayAdapter.notifyDataSetChanged();
+                        //myBluetoothAdapter.cancelDiscovery();
 
                     }
                 }, 5000);
@@ -211,7 +220,7 @@ public class NewDevicesFragment extends Fragment {
 
             @Override
             public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
-                DeviceModel dm = BTArrayAdapter.getItem(position);
+                BLEDeviceModel dm = BTArrayAdapter.getItem(position);
                 Log.d("fetched_model ", dm.getTitle() + " at " + position);
 
                 if (dm.getBondState().equals("BOND:NONE")) {
