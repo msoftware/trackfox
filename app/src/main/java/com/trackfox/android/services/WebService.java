@@ -2,14 +2,22 @@ package com.trackfox.android.services;
 
 import android.app.Service;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import com.loopj.android.http.AsyncHttpClient;
+import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.loopj.android.http.RequestParams;
 import com.trackfox.android.utils.ConnectedCache;
+import com.trackfox.android.utils.IMEICache;
 import com.trackfox.android.utils.PairedCache;
+
+import org.apache.http.Header;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -27,9 +35,15 @@ public class WebService extends Service {
     final Handler handler = new Handler();
 
     private static final String TAG = WebService.class.getSimpleName();
+    private static final String endpoint = "http://arka.foi.hr/~hrorejas/TrackFox/scripts/api.php";
 
     PairedCache pairedCache;
     ConnectedCache connectedCache;
+    IMEICache imeiCache;
+
+    private SharedPreferences prefs;
+    private String deviceID;
+
     @Override
     public IBinder onBind(Intent intent) {
 
@@ -41,7 +55,9 @@ public class WebService extends Service {
         super.onCreate();
         pairedCache = new PairedCache(this);
         connectedCache = new ConnectedCache(this);
-
+        imeiCache = new IMEICache(this);
+        this.deviceID = imeiCache.read();
+        prefs = PreferenceManager.getDefaultSharedPreferences(this);
         Log.d(TAG, "onCreated");
     }
 
@@ -55,14 +71,6 @@ public class WebService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "onStarted");
         startTimer();
-
-
-        // TODO: add alarm to periodacly check cache for paired devices
-        //if (pairedCache.getList().size() == 0) {
-        //         INFO: send data to server
-        //    Log.d(TAG, "Sending data to server");
-        //}
-
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -86,6 +94,37 @@ public class WebService extends Service {
         }
     }
 
+    /*
+    public void httpPostData() {
+        // Creating a new HttpClient and Post Header
+        HttpClient httpclient = new DefaultHttpClient();
+        HttpPost httppost = new HttpPost(endpoint);
+
+        try {
+            // Adding post data
+            List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(4);
+            nameValuePairs.add(new BasicNameValuePair("deviceid", this.deviceID));
+            nameValuePairs.add(new BasicNameValuePair("sessionid", this.deviceID));
+            nameValuePairs.add(new BasicNameValuePair("long", prefs.getString("gps_longitude", null)));
+            nameValuePairs.add(new BasicNameValuePair("lat", prefs.getString("gps_longitude", null)));
+
+            httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+
+            Log.d(TAG, "Sending http post data");
+            // Execute HTTP Post Request
+            HttpResponse response = httpclient.execute(httppost);
+
+
+
+        } catch (ClientProtocolException e) {
+            // TODO Auto-generated catch block
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+        }
+    }
+    */
+
+
     public void initializeTimerTask() {
 
         timerTask = new TimerTask() {
@@ -103,6 +142,40 @@ public class WebService extends Service {
                         int duration = Toast.LENGTH_SHORT;
                         Toast toast = Toast.makeText(getApplicationContext(), strDate + ": " + size, duration);
                         toast.show();
+
+                        if (size == 0) {
+                            Log.d(TAG, "We are not connected with trusted device. Sending data to server.");
+
+                            /*
+                            HashMap<String, String> data = new HashMap<String, String>();
+                            data.put("deviceid", deviceID);
+                            data.put("long", prefs.getString("gps_longitude", null));
+                            data.put("lat", prefs.getString("gps_latitude", null));
+                            data.put("sessionid", deviceID);
+                            AsyncHttpPost asyncHttpPost = new AsyncHttpPost(data);
+                            asyncHttpPost.execute(endpoint);
+                            */
+
+                            AsyncHttpClient client = new AsyncHttpClient();
+                            RequestParams params = new RequestParams();
+                            params.put("deviceid", deviceID);
+                            params.put("sessionid", deviceID);
+                            params.put("lat", prefs.getString("gps_latitude", null));
+                            params.put("long", prefs.getString("gps_longitude", null));
+                            client.post(endpoint, params , new AsyncHttpResponseHandler() {
+                                @Override
+                                public void onSuccess(int i, Header[] headers, byte[] bytes) {
+                                    Log.d(TAG, "HURAY");
+                                }
+
+                                @Override
+                                public void onFailure(int i, Header[] headers, byte[] bytes, Throwable throwable) {
+                                    Log.d(TAG, ":( -> " + i);
+                                }
+                            });
+                        } else {
+                            Log.d(TAG, "We are connected with trusted device.");
+                        }
                     }
                 });
             }

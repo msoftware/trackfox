@@ -1,7 +1,8 @@
 package com.trackfox.android.services;
 
 /**
- * Created by Sam on 15.1.2015..
+ * Created by Sam on 15.1.2015.
+ * D
  */
 public interface IDeviceService {
 

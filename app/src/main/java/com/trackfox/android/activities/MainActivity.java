@@ -10,6 +10,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
+import android.telephony.TelephonyManager;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
@@ -21,6 +23,7 @@ import android.widget.Toast;
 import com.trackfox.android.activities.adapters.TabsPagerAdapter;
 import com.trackfox.android.services.BLEDeviceService;
 import com.trackfox.android.services.WebService;
+import com.trackfox.android.utils.IMEICache;
 
 import java.util.Set;
 
@@ -41,16 +44,19 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
     private boolean BluetoothActivated;
 
     private Menu menu;
-    private boolean waitingForBonding;
+
+
 
     /**
      * The pager widget, which handles animation and allows swiping horizontally to access previous
      * and next wizard steps.
      */
+
     private ViewPager viewPager;
     private TabsPagerAdapter mAdapter;
     private ActionBar actionBar;
     private String[] tabs = { "Nearby Devices", "Trusted Devices", "Statistics" };
+
 
     protected void setBLEmenuBtn(boolean activated) {
 
@@ -113,7 +119,7 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
         // take an instance of BluetoothAdapter - Bluetooth radio
         myBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
-
+        this.initIMEI();
 
         if(myBluetoothAdapter == null) {
 
@@ -128,6 +134,13 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
         this.BluetoothActivated = myBluetoothAdapter.isEnabled();
     }
 
+    private void initIMEI() {
+        TelephonyManager TelephonyMgr = (TelephonyManager)getSystemService(TELEPHONY_SERVICE);
+        String szImei = TelephonyMgr.getDeviceId();
+        Log.d("IMEI", szImei);
+        IMEICache imei = new IMEICache(this);
+        imei.save(szImei);
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {

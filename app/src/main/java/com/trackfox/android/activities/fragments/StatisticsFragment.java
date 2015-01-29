@@ -2,7 +2,6 @@ package com.trackfox.android.activities.fragments;
 
 import android.content.SharedPreferences;
 import android.location.Location;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
@@ -14,6 +13,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.trackfox.android.activities.R;
+import com.trackfox.android.utils.IMEICache;
+import com.trackfox.android.utils.PairedCache;
 import com.trackfox.android.utils.TrackfoxLocationListener;
 
 /**
@@ -24,13 +25,16 @@ public class StatisticsFragment extends Fragment {
     private String DEBUG = "StatisticsFragment";
 
     private TrackfoxLocationListener tLocationManager;
-    private LocationManager locationManager;
     private SharedPreferences prefs;
 
     private TextView locationTextView;
+    private TextView deviceIDTextView;
+    private TextView numberOfDevices;
+
     private String longitude;
     private String latitude;
 
+    private PairedCache pairedCache;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle saveInstanceState) {
@@ -46,6 +50,8 @@ public class StatisticsFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         locationTextView = (TextView) getActivity().findViewById(R.id.location_text_view);
+        deviceIDTextView = (TextView) getActivity().findViewById(R.id.device_id_text_view);
+        numberOfDevices = (TextView) getActivity().findViewById(R.id.number_of_devices_text_view);
 
         tLocationManager = new TrackfoxLocationListener(getActivity());
 
@@ -71,6 +77,15 @@ public class StatisticsFragment extends Fragment {
         String locationText = "Location: " + longitude + ", " + latitude;
         Log.d(DEBUG, locationText);
         locationTextView.setText(locationText);
+
+        IMEICache imei = new IMEICache(getActivity());
+        String deviceid = imei.read();
+        String deviceid_text = "DeviceID: " + deviceid;
+        deviceIDTextView.setText(deviceid_text);
+
+
+        int devicesSize = pairedCache.getList().size();
+        numberOfDevices.setText("Trusted Devices: " + devicesSize);
 
     }
 }
